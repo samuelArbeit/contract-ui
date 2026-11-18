@@ -30,7 +30,7 @@ import {
   validateSubmissionYaml,
 } from '../utils/submissionForm';
 import AuditorSection from './AuditorSection';
-import { prepareContractInput, PODMAN_WORKLOAD_TEMPLATE } from '../utils/contractInput';
+import { prepareContractInput, formatContractYaml, PODMAN_WORKLOAD_TEMPLATE } from '../utils/contractInput';
 
 const ROLE_CONFIG = {
   SOLUTION_PROVIDER: {
@@ -590,6 +590,22 @@ function SubmissionForm({ buildId, buildStatus, personaRole, onStatusUpdate }) {
         onSecondarySubmit={() => setDraft(null)}
         selectorPrimaryFocus={`#yaml-editor-${personaRole}`}
       >
+        <Button
+          kind="ghost"
+          size="sm"
+          disabled={!draft?.content.trim()}
+          onClick={() => {
+            try {
+              const content = formatContractYaml(draft.content);
+              setDraft((d) => ({ ...d, content }));
+              setDraftError('');
+            } catch (e) {
+              setDraftError(e.message);
+            }
+          }}
+        >
+          Format
+        </Button>
         <TextArea
           id={`yaml-editor-${personaRole}`}
           labelText={`${config.label} YAML content`}

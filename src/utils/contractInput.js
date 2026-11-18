@@ -51,6 +51,26 @@ export function prepareContractInput(content, section) {
   return content;
 }
 
+/** Re-emit YAML with normalized indentation. Comments are not preserved. */
+export function formatContractYaml(content) {
+  const emit = (text) =>
+    loadAll(text, undefined, { schema: JSON_SCHEMA })
+      .map((doc) => dump(doc, { noRefs: true, lineWidth: -1 }))
+      .join('---\n');
+  try {
+    return emit(content);
+  } catch (error) {
+    // Pasted text often has a stray indent on the first line: trim it, dedent the other lines and retry.
+    const [first, ...rest] = content.split('\n');
+    const indent = Math.min(...rest.filter((l) => l.trim()).map((l) => l.search(/\S/)));
+    try {
+      return emit([first.trimStart(), ...rest.map((l) => l.slice(indent))].join('\n'));
+    } catch {
+      throw error;
+    }
+  }
+}
+
 export const PODMAN_WORKLOAD_TEMPLATE = `type: workload
 play:
   resources:

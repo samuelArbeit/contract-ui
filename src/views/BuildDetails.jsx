@@ -37,6 +37,7 @@ const getCompactProgress = () => window.matchMedia(COMPACT_PROGRESS_QUERY).match
 
 const TAB_LABELS = {
   assignments: 'Assignments',
+  secrets: 'Secrets',
   signingKey: 'Add signing key',
   workload: 'Add workload',
   environment: 'Add environment',
@@ -50,10 +51,10 @@ const TAB_LABELS = {
 
 const ROLE_BUILD_TAB_KEYS = {
   ADMIN: ['assignments', 'audit'],
-  AUDITOR: ['assignments', 'signingKey', 'attestationKey', 'finalise', 'verifyAttestation', 'audit'],
-  SOLUTION_PROVIDER: ['assignments', 'workload', 'audit'],
-  DATA_OWNER: ['assignments', 'environment', 'attestationRecords', 'audit'],
-  ENV_OPERATOR: ['assignments', 'export', 'attestationRecords', 'audit'],
+  AUDITOR: ['assignments', 'secrets', 'signingKey', 'attestationKey', 'finalise', 'verifyAttestation', 'audit'],
+  SOLUTION_PROVIDER: ['assignments', 'secrets', 'workload', 'audit'],
+  DATA_OWNER: ['assignments', 'secrets', 'environment', 'attestationRecords', 'audit'],
+  ENV_OPERATOR: ['assignments', 'secrets', 'export', 'attestationRecords', 'audit'],
   VIEWER: ['assignments', 'audit']
 };
 
@@ -246,15 +247,15 @@ const BuildDetails = ({ build, onBack, userRole, advanceBuildState, availableRol
               <TabPanel key={`${build.id}:${userRole}:${t.key}`}>
                 {(mountedTabs.includes(t.key) || t.key === selectedTabKey) && <div className="build-details-tab-content">
                   {t.key === 'assignments' && (
-                    <div className="build-details__setup">
                     <BuildAssignments
                       buildId={build.id}
                       buildStatus={currentStatus}
                       userRole={userRole}
                       onStatusUpdate={handleStatusUpdate}
                     />
+                  )}
+                  {t.key === 'secrets' && (
                     <BuildSecretFlow buildId={build.id} buildStatus={currentStatus} userRole={userRole} />
-                    </div>
                   )}
                   {t.key === 'signingKey' && (
                     <AuditorSection

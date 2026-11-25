@@ -10,7 +10,7 @@ selected initially; older revisions remain selectable. Rotating a catalog secret
 never silently changes a saved group or build reference. Groups may contain up to
 64 versions; a runtime build permits at most eight requests after expansion.
 
-## Build → Assignments → Runtime secrets
+## Build → Secrets (runtime secrets)
 
 1. The assigned **Environment Operator** selects the destination CCRV runtime:
    protected image source and SHA-256, public SE header and independently obtained

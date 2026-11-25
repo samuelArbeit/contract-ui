@@ -48,7 +48,7 @@ import { formatDate } from '../utils/formatters';
 
 const emptyRequirement = () => ({ name: '', consumer: '', kind: 'retrievable', type: 'plain' });
 const kinds = ['plain', 'aes', 'aes-xts', 'hmac-sha', 'ec', 'association'];
-export default function BuildSecretFlow({ buildId, buildStatus }) {
+export default function BuildSecretFlow({ buildId, buildStatus, userRole }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -118,6 +118,11 @@ export default function BuildSecretFlow({ buildId, buildStatus }) {
     }
   };
   const requirements = data?.requirements || [];
+  const canTarget = data?.can_target && userRole === 'ENV_OPERATOR';
+  const canApproveTarget = data?.can_approve_target && userRole === 'AUDITOR';
+  const canRequirements = data?.can_requirements && userRole === 'SOLUTION_PROVIDER';
+  const canContribute = data?.can_contribute;
+  const canPrepare = data?.can_prepare && userRole === 'AUDITOR';
   return (
     <section className="secret-store secret-flow" aria-label="Build secret flow">
       <div className="secret-store__section-heading">
@@ -151,7 +156,7 @@ export default function BuildSecretFlow({ buildId, buildStatus }) {
               subtitle={data.preparation_error}
             />
           )}
-          {!data.target && data.can_contribute && data.own_sources?.length > 0 && (
+          {!data.target && canContribute && data.own_sources?.length > 0 && (
             <div>
               <InlineNotification
                 kind="warning"
@@ -219,12 +224,12 @@ export default function BuildSecretFlow({ buildId, buildStatus }) {
                 </p>
               )}
               <div className="secret-store__actions">
-                {data.can_target && (
+                {canTarget && (
                   <Button kind="tertiary" onClick={() => setModal('target')}>
                     {data.target ? 'Change target' : 'Select target'}
                   </Button>
                 )}
-                {data.can_approve_target && data.target && (
+                {canApproveTarget && data.target && (
                   <Button kind="tertiary" renderIcon={Checkmark} onClick={() => setModal('review')}>
                     Review target
                   </Button>
@@ -292,12 +297,12 @@ export default function BuildSecretFlow({ buildId, buildStatus }) {
                 requirements, never private aliases or stored values.
               </p>
               <div className="secret-store__actions">
-                {data.can_requirements && (
+                {canRequirements && (
                   <Button kind="tertiary" onClick={() => setModal('requirements')}>
                     Edit requirements
                   </Button>
                 )}
-                {data.can_contribute && data.target && (
+                {canContribute && data.target && (
                   <Button kind="tertiary" onClick={() => setModal('sources')}>
                     Approve my secrets
                   </Button>
@@ -315,7 +320,7 @@ export default function BuildSecretFlow({ buildId, buildStatus }) {
                 The trusted worker checks the signed approvals and creates requests with pvsecret.
                 Workload submission freezes this manifest.
               </p>
-              {data.can_prepare && (
+              {canPrepare && (
                 <Button
                   disabled={
                     busy ||
